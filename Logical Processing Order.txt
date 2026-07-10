@@ -1,0 +1,107 @@
+
+
+
+---------------------------------Source: https://www.youtube.com/watch?v=3BrL5S8Xg2s--------------------------------
+
+
+
+-------------------------------------------------- Data Loading Types------------------------------------------------------
+Source: https://docs.snowflake.com/en/user-guide/data-load-overview
+
+                                      Main options available to load data into Snowflake.
+
+
+-- 1. Types: Bulk, Continuous, Staging
+
+Snowflake manages data ingestion by splitting the process into:
+- where the data sits (Staging) and
+- how the data moves (Bulk or Continuous loading
+
+
+-------------------------------------------------- Data Loading Methods------------------------------------------------------
+
+
+
+-- 1.Using COPY command
+   * Primary ,loading mechanism for bulk loading
+   * From stage to table
+   * Supports Various Formats(CSV, JSON) 
+
+
+--2 Using Snowpipe
+   * uSED FOR continuous LOADING
+   * Automated, continuous
+   * Low latency
+
+
+Note: Supported file locations
+Snowflake refers to the location of data files in cloud storage as a stage. 
+The COPY INTO <table> command used for both bulk and continuous data loads (Snowpipe)
+
+
+
+
+
+1. Bulk Loading (Batch Processing)
+   Bulk loading is used to process large volumes of historical data or scheduled batch files (e.g., hourly, daily, or weekly intervals)
+
+	Core Command: 	   Uses the explicit COPY INTO <table> SQL statement.
+	Compute Resources: Relies entirely on user-defined, active Virtual Warehouses. You pay for the size of the warehouse (XS to 6XL) for the exact duration it runs.
+	Key Capabilities:  Supports basic transformations during the load process, such as column reordering, omissions, data type casting, and text truncation.
+	Best Used For:     Migrating historical databases, large daily ERP dumps, and structured or semi-structured batch ingestion pipelines
+
+
+2. Continuous Loading (Real-Time Ingestion)
+   Designed to load small volumes of data (i.e. micro-batches) and incrementally make them available for analysis. 
+   Snowpipe loads data within minutes after files are added to a stage and submitted for ingestion. 
+   This ensures users have the latest results, as soon as the raw data is available.
+
+
+	Snowflake offers two primary sub-types
+
+	A. Snowpipe (File-Based)
+   	   How it works:  Monitors external cloud storage stages using cloud event notifications (e.g., AWS SQS/SNS, Azure Event Grid).
+   	   Mechanism:     As soon as a file lands in the cloud bucket, an event triggers Snowpipe to load it in micro-batches into Snowflake.
+   	   Compute:       Uses Serverless Compute resources managed entirely by Snowflake, charging per-second based on actual consumption.
+
+	B. Snowpipe Streaming (Row-Based)
+   	   How it works:  Bypasses the need for file creation and staging altogether.
+   	   Mechanism:     Writes streaming rows of data directly to Snowflake tables via an API.
+   	   Best Used For: Low-latency event streaming from services like Apache Kafka, IoT sensor telemetry, and real-time application logs
+
+
+3. Staging (Where Data Sits First)
+    Before data can be loaded into Snowflake tables, it must be uploaded to a virtual landing zone called a Stage.
+
+	Internal Stages: Storage locations managed natively inside Snowflake.
+		-User Stages: Allocated automatically for each user; ideal for files managed by a single person.
+		-Table Stages: Allocated automatically for each table; ideal for files that only belong in that specific table.
+		-Named Internal Stages: Created manually; shareable across users and multiple tables.
+
+	External Stages: Secure references to cloud storage locations you already own and manage outside of Snowflake.
+		-Supported platforms include Amazon S3, Google Cloud Storage, and Microsoft Azure Blob Storage.
+
+	Core Command: The PUT command uploads raw data files from a local file system into an internal Snowflake stage
+
+
+
+-----------------------------------------------CREATE STAGE LAYER--------------------------------------------
+
+Before uploading any external/internal data you need to create a STAGE 
+
+1 Go to teh schema , "Create"/STAGE and Choose the type
+   Internal: Snowflake Managed. If this is chose, Then, Inside the Stage, click on " + Files" button to upload files
+   External: Azure, Amazon, etc 
+  
+
+
+
+---------------------------------HEADER HEADER HEADER HEADER HEADER HEADER HEADER HEADER ------------------------------
+
+---------------------------------HEADER HEADER HEADER HEADER HEADER HEADER HEADER HEADER ------------------------------
+
+
+
+
+
+
