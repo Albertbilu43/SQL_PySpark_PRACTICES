@@ -1,0 +1,64 @@
+ -------------------------------------------------------------METHOD ONE:--------------------------------------------------------------
+ -------------------------------------------------------------METHOD ONE:--------------------------------------------------------------
+
+Link the DataBricks to the GitHub account
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>IN DATABRICKS
+1) Go to your email account icon(Top-right) and clik on 'Settings'
+
+    # LINK SETTINGS ACCOUNT
+  a) User /  Linked Accounts / Add Git credential
+
+      Git provider: GitHub
+      Nickname:     GitHubHBL44
+      Select:       Link Git account
+      Click on 'Link'
+      Clico on 'Authorize'      
+
+  b) Refresh databricks and you should see the linked account displayed
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>IN GITHUB
+2) Open your account:
+      
+      #COPY THE REPO HTTPS link
+   a) Click on the desired repo (SQL_PySpark_PRACTICES)/ Code(the green button) and copy the HTTPS link
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>IN DATABRICKS
+3) Open your account:
+
+     #CREATE A NEW REPO IN THE WORKSPACE
+  a)  Workspace/ Repos(right-click) / Create/ Folder and name it "Git_Repo_HBL"
+      Hit "Create"
+
+     #CREATE A GITHUB FOLDER INSIDE THE NEW DATABRICKS REPO
+  b) Right-Clik on the new repo/ Create/Git Folde(recommended)  
+
+      Git repository URL: Paste that HTTPS link from GitHub
+      Git provider      : Select GitHub
+      Name              : By default the GitHub repo name is populated but You can choose anything else
+
+
+  c) The new repo will appear in the 'Users. list of files
+     Note: now you can ALSO clone any folder into this so I cloned "spark_programmingHBL"
+
+
+
+ -------------------------------------------------------------METHOD TWO:--------------------------------------------------------------
+ -------------------------------------------------------------METHOD TWO:--------------------------------------------------------------
+
+  DataBricks GitHub repo
+
+1) Open you DataBricks account/Workspace/Create/Git Folder On top-right
+  1.1 Open you GitHub acoount and access to the repo (SQL_PySpark_PRACTICES)/ Code(the green button) and copy the HTTPS link
+2) Git repository URL: Paste that url path from GitHub
+   Git provider : Select GitHub
+   Name: You can choose the same repo name or anything else
+
+   Hit Create
+
+
