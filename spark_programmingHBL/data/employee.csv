@@ -1,0 +1,32 @@
+employee_id,Name,departmentid,role,salary,startdate,enddate
+1,John Smith,1,Sales Associate,60000,2020-01-15,null
+2,Sarah Johnson,1,Sales Manager,65000,2019-06-20,null
+3,Michael Brown,2,Software Engineer,75000,2018-03-10,null
+4,Emily White,2,Software Manager,70000,2021-02-14,null
+5,David Lee,3,HR Specialist,80000,2017-11-25,null
+6,Jennifer Davis,3,HR Manager,78000,2019-09-01,2023-03-30
+7,Robert Wilson,null,Sales Associate,55000,2022-04-12,null
+8,Lisa Anderson,4,Marketing Specialist,72000,2020-07-08,null
+9,James Taylor,4,Marketing Manager,71000,2021-01-20,null
+10,Mary Martinez,null,Sales Associate,58000,2022-05-15,null
+11,Chris Garcia,1,Sales Associate,60000,2020-10-30,null
+12,Paty Rodriz,2,Software Engineer,76000,2019-12-05,null
+13,Daniel Thomn,null,Sales Associate,54000,2023-02-01,null
+14,Linda Harris,3,HR Specialist,78000,2018-08-19,null
+15,Joseph Clark,4,Marketing Specialist,73000,2021-11-10,null
+16,Barbara Lewis,null,Sales Associate,56000,2022-09-22,null
+17,Thomas Walker,1,Sales Associate,63000,2020-03-17,null
+18,Susan Hall,2,Software Engineer,74000,2019-07-11,null
+19,Charles Allen,null,Sales Associate,59000,2023-01-08,null
+20,Nancy Young,3,HR Specialist,81000,2017-05-30,2020-05-30
+21,Eva Young,5,Finance Manager,80000,2017-05-30,2020-06-30
+22,Jeva Chandra,5,Finance Specialist,80000,2017-08-20,null
+23,Jim Gallion,6,Operations Associate,61000,2017-08-20,null
+24,Juan Lopez,7,IT Support Manager,10000,2018-03-22,null
+25,Mina Nakao,8,Legal Assistant,81000,2018-03-20,null
+26,Chad Roagen,7,IT Support Specialist,30000,2018-03-17,2026-06-30
+27,Lilly Raied,9,Customer Service Rep,40000,2017-08-20,null
+28,Nancy Ledger,6,Operations Manager,60000,2026-07-10,null
+29,Benjamin Beneth,6,Operations Associate,61000,2026-01-20,null
+30,Steven Tanaka,8,Legal Manager,80000,2026-03-20,null
+31,Tim Slanter,9,Customer Manager,50000,2026-07-20,null

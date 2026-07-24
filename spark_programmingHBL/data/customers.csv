@@ -1,0 +1,27 @@
+customerid,customer_name,order_id,productid,product_name,quantity,price,order_date
+1,Alice,2201,101,Widget,2,50,2/27/2022
+2,Bob,2202,102,Gadget,1,150,1/12/2020
+3,Carol,2203,103,Doodad,5,4,11/17/2019
+4,Dave,2129,101,Widget,10,50,12/23/2020
+3,Carol,2300,103,Doodad,2,8,4/1/2020
+5,Lewis,2342,102,Gadget,1,150,1/1/2024
+5,Lewis,2343,102,Gadget,2,150,2/1/2024
+5,Lewis,2344,102,Gadget,2,150,3/1/2024
+5,Lewis,2345,102,Gadget,2,150,4/1/2024
+5,Lewis,2346,102,Gadget,2,150,5/1/2024
+5,Lewis,2347,102,Gadget,2,150,6/1/2024
+5,Lewis,2348,102,Gadget,2,150,7/1/2024
+5,Lewis,2349,102,Gadget,3,150,7/2/2024
+5,Lewis,2350,102,Gadget,3,150,8/21/2024
+5,Lewis,2351,102,Gadget,3,150,9/21/2024
+5,Lewis,2352,102,Gadget,3,150,10/30/2024
+5,Lewis,2353,102,Gadget,3,150,11/21/2024
+5,Lewis,2354,102,Gadget,3,150,12/21/2024
+5,Lewis,2355,102,Gadget,3,150,11/21/2025
+6,Gillian,2360,101,Widget,4,50,9/11/2025
+6,Gillian,2361,105,Office Suite,3,600,11/11/2025
+2,Bob,2362,102,Gadget,3,150,1/2/2026
+3,Carol,2363,103,Doodad,20,4,2/17/2026
+4,Dave,2364,101,Widget,8,50,3/3/2026
+4,Dave,2365,101,Widget,30,50,3/4/2026
+3,Carol,2366,103,Doodad,20,8,3/11/2026

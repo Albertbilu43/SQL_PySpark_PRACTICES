@@ -1,0 +1,27 @@
+order_id,customerid,productid,product_name,region,order_date
+2201,1,101,Widget,Central,2/27/2022
+2202,2,102,Gadget,North,1/12/2020
+2203,3,103,Doodad,South,11/17/2019
+2129,4,101,Widget,West,12/23/2020
+2300,3,103,Doodad,West,4/1/2020
+2342,5,102,Gadget,West,1/1/2024
+2343,5,102,Gadget,West,2/1/2024
+2344,5,102,Gadget,West,3/1/2024
+2345,5,102,Gadget,West,4/1/2024
+2346,5,102,Gadget,West,5/1/2024
+2347,5,102,Gadget,West,6/1/2024
+2348,5,102,Gadget,West,7/1/2024
+2349,5,102,Gadget,West,7/2/2024
+2350,5,102,Gadget,West,8/21/2024
+2351,5,102,Gadget,West,9/21/2024
+2352,5,102,Gadget,West,10/30/2024
+2353,5,102,Gadget,West,11/21/2024
+2354,5,102,Gadget,West,12/21/2024
+2355,5,102,Gadget,West,11/21/2025
+2360,6,101,Widget,South,9/11/2025
+2361,6,105,Office Suite,South,11/11/2025
+2362,2,102,Gadget,North,1/2/2026
+2363,3,103,Doodad,South,2/17/2026
+2364,4,101,Widget,West,3/3/2026
+2365,4,101,Widget,West,3/4/2026
+2366,3,103,Doodad,West,3/11/2026
