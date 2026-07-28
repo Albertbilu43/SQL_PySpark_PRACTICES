@@ -31,6 +31,11 @@
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC ---------------------------------------------------------------------
 # MAGIC ### HERE PASTE NUMBER 8
 # MAGIC ---------------------------------------------------------------------
@@ -41,7 +46,7 @@
 # MAGIC
 # MAGIC
 # MAGIC ------------------------------------------------------------------
-# MAGIC #### 9  join(): Handling duplicate/ambiguous columns / alias
+# MAGIC #### 9  join(): Handling duplicate/ambiguous columns / alias / Join expression with MULTIPLE "and" 
 # MAGIC ------------------------------------------------------------------
 # MAGIC
 # MAGIC 1. Joining tables can be done in different ways:
@@ -71,6 +76,7 @@
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ------------------------------------------------------------------
 # MAGIC ###### Join example 1:   Creating a datframe BEFORE tables are LOADED by reading files from Volumens using the FOOL format. 
 # MAGIC   spark.read.format.....
 # MAGIC
@@ -99,6 +105,7 @@ result_df.display()
 # MAGIC
 # MAGIC FGind it in t6his path: spark_programming /CH07-Spark Joins / 02- Inner Joins
 # MAGIC
+# MAGIC ------------------------------------------------------------------
 # MAGIC ###### Join ecxample 2: Creating a dataframe AFTER the tables were LOADED with data from a file. CALLING THE ALREADY LOADED TABLE DIRECTLY
 # MAGIC   spark.table.....
 # MAGIC
@@ -126,6 +133,7 @@ reports_df.display()
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ------------------------------------------------------------------
 # MAGIC ###### Join example 3: 
 
 # COMMAND ----------
@@ -144,6 +152,121 @@ report_df = (bookings_df.join(members_df, expr("b.member_id == m.member_id"), "i
 )
 
 report_df.display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ------------------------------------------------------------------
+# MAGIC ###### Join example 4: Using a join expression with MULTIPLE "and".  Put all "and" inside a single string
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC Code snippet:
+# MAGIC
+# MAGIC join_expr = expr("e.departmentid == m.departmentid" and  "e.role NOT LIKE '%Manager%'" and "m.role LIKE '%Manager%'" and "e.salary > m.salary" )
+# MAGIC
+# MAGIC
+# MAGIC In PySpark, the expression you wrote has a Python logical error. 
+# MAGIC >> Using the and operator between text strings ("string1" and "string2") does not combine the filters; instead, Python evaluates the strings and keeps only the last one.
+# MAGIC
+# MAGIC >> To correctly build your join expression in PySpark using the expr function, you must place all logical AND operators inside a single text string, or combine the individual expressions using the ampersand (&) operator.
+# MAGIC
+# MAGIC Here are the two correct ways to do it:
+# MAGIC
+# MAGIC 1)          Option 1: Everything inside a single expr string (Recommended)Join all conditions inside a single string using the SQL AND syntax.
+
+# COMMAND ----------
+
+
+from pyspark.sql.functions import expr
+
+join_expr = expr(
+    "e.departmentid == m.departmentid AND "
+    "e.role NOT LIKE '%Manager%' AND "
+    "m.role LIKE '%Manager%' AND "
+    "e.salary > m.salary"
+)
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC 2)         Option 2: Combining multiple expr functions with AND. If you prefer to keep the conditions separate in your code, you must wrap each one in an expr() and join them with the & operator (each condition must be in parentheses).
+
+# COMMAND ----------
+
+from pyspark.sql.functions import expr
+
+join_expr = (
+    (expr("e.departmentid == m.departmentid")) & 
+    (expr("e.role NOT LIKE '%Manager%'")) & 
+    (expr("m.role LIKE '%Manager%'")) & 
+    (expr("e.salary > m.salary"))
+)
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ###### Full correct SQL query
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC -- Find employees who earn more than their managers in the same department
+# MAGIC SELECT 
+# MAGIC     e.departmentid,
+# MAGIC     e.Name as employee_name,
+# MAGIC     e.role as employee_role,
+# MAGIC     e.salary as employee_salary,
+# MAGIC     m.Name as manager_name,
+# MAGIC     m.role as manager_role,
+# MAGIC     m.salary as manager_salary,
+# MAGIC     e.salary - m.salary as salary_difference
+# MAGIC FROM dev.spark_db.employee e
+# MAGIC INNER JOIN dev.spark_db.employee m 
+# MAGIC     ON e.departmentid = m.departmentid
+# MAGIC     AND e.role NOT LIKE '%Manager%'
+# MAGIC     AND m.role LIKE '%Manager%'
+# MAGIC     AND e.salary > m.salary
+# MAGIC WHERE e.departmentid IS NOT NULL
+# MAGIC ORDER BY e.departmentid, salary_difference DESC
+# MAGIC ;
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### Full PySpark code
+
+# COMMAND ----------
+
+from pyspark.sql.functions import col, expr, max, count, min, sum, avg,year, month, dense_rank, desc, lag, countDistinct
+from pyspark.sql.window import Window
+from pyspark.sql.types     import StructType, StructField, StringType, IntegerType, DateType
+
+employee_df = spark.table('dev.spark_db.employee').alias("e")
+managers_df = spark.table("dev.spark_db.employee").alias("m")
+
+join_expr = expr("e.departmentid == m.departmentid and  e.role NOT LIKE '%Manager%' and m.role LIKE '%Manager%' and e.salary > m.salary" )
+
+joined_df = ( employee_df.join(managers_df, join_expr, 'inner')
+                         .filter( col("e.departmentid").isNotNull())
+                         .withColumns({ "employee_name":     expr("e.name")   ,
+                                        "employee_role":     expr("e.role")   ,
+                                        "employee_salary":   expr("e.salary") ,
+                                        "manager_name":      expr("m.name")   ,
+                                        "manager_role":      expr("m.role")   ,
+                                        "manager_salary":    expr("m.salary") ,
+                                        "salary_difference": expr("e.salary - m.salary")
+                                      })
+                         .select("e.departmentid","employee_name", "employee_role", "employee_salary", "manager_name", "manager_role", "manager_salary", "salary_difference" ).distinct()
+                         .orderBy(col("e.departmentid"), col("salary_difference").desc() )
+
+
+            ) 
+joined_df.display()
 
 # COMMAND ----------
 
