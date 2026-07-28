@@ -1,0 +1,110 @@
+
+PySpark Practices
+
+ -------------------------------------------------------------METHOD ONE:--------------------------------------------------------------
+ -------------------------------------------------------------METHOD ONE:--------------------------------------------------------------
+
+
+
+
+>>>>>>>>>>>>>> IN DATABRICKS >>>>>>>>>>>>
+
+#Link the DataBricks to the GitHub account
+1) Go to your email account icon(Top-right) and clik on 'Settings'
+
+    # LINK SETTINGS ACCOUNT
+  a) User /  Linked Accounts / Add Git credential
+
+      Git provider: GitHub
+      Nickname:     GitHubHBL44
+      Select:       Link Git account
+      Click on 'Link'
+      Clico on 'Authorize'      
+
+  b) Refresh databricks and you should see the linked account displayed
+
+  c) Click on the link 'Configure in GitHub' 
+     Click 'Install' 
+
+
+
+>>>>>>>>>>>>>> IN GITHUB >>>>>>>>>>>>>>>>>>>
+
+#COPY THE REPO HTTPS link
+2) Open your account:
+      
+   a) Click on the desired repo (SQL_PySpark_PRACTICES)/ Click on Code(the green button) and copy the HTTPS link
+
+
+
+>>>>>>>>>>>>> IN DATABRICKS >>>>>>>>>>>>>>>>>
+
+#CREATE A NEW REPO IN THE WORKSPACE
+3) Open your account:
+
+  a)  Workspace/ Repos(right-click) / Create/ Folder and name it "Git_HBL4"
+      Hit "Create"
+
+     #CREATE A GITHUB FOLDER INSIDE THAT NEW REPO
+  b) Right-Clik on the new repo/ Create/Git Folde(recommended)  
+
+      Git repository URL: Paste that HTTPS link from GitHub
+      Git provider      : Select GitHub
+      Name              : By default the GitHub repo name is populated but You can choose anything else
+
+     Click on "Create Git Folder"
+
+
+# CREATE A BRANCH OF THAT GITHUB: By default the 'Main' is selected so you YOU MUST create a BRANCH to work with!!!!!!!!!!!!!!!!!!!!!!!!!
+  c) The new repo will appear in the Workspace>'Users> list of files
+
+     a) Click on it/ clik on Main (top-middle)
+     b) Click on 'Create a branch'. Name it "dev" Hit "Create"
+        After this you can create files to this dev branch 
+
+
+     #Modify files in DB, then pull changes in GitHub to synchronize both DB and GitHub
+
+     c) Go back to Workspace/Select the Folder "SQL_PySpark_PRACTICES" in this case. MAKE SURE IN THE TOP-MIDDLE 'dev' is Selected
+
+     d) Click on teh dev branch
+        Ad a commit message in the space bar for commits (bottom-left) "Commit changes..."
+        Click "Commit and pUsh"
+      A message should appear if all went successfully :  "Successfully committed and pushed changes to branch "dev"" in top-left
+
+
+     Note: now you can ALSO clone any folder into this so I cloned "spark_programmingHBL"
+
+
+
+>>>>>>>>>>>>>> IN GITHUB >>>>>>>>>>>>>>>>>>> 
+
+# SYNCH GITHUB TO PULL THE RECENT CHANGES
+2) Open your account:
+      
+      You should see a message "dev had recent pushes 5 seconds ago" and the button "Compare & Pull request". Click on it
+      Cliack again in "Create pull request"
+      Add a title: Put any desired name
+      Click on "Merge pull request"
+      Click on "Confirm Merge"
+      You should seea a messge "Pull request successfully merged and closed"
+    
+  You can go back to teh repo in GitHub. All changes should be reflected now!!
+
+
+
+
+ -------------------------------------------------------------METHOD TWO:--------------------------------------------------------------
+ -------------------------------------------------------------METHOD TWO:--------------------------------------------------------------
+
+  DataBricks GitHub repo
+
+1) Open you DataBricks account/Workspace/Create/Git Folder On top-right
+  1.1 Open you GitHub acoount and access to the repo (SQL_PySpark_PRACTICES)/ Code(the green button) and copy the HTTPS link
+2) Git repository URL: Paste that url path from GitHub
+   Git provider : Select GitHub
+   Name: You can choose the same repo name or anything else
+
+   Hit Create
+
+
