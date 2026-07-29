@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 # MAGIC %md
 # MAGIC ##Agenda
 # MAGIC
@@ -10,6 +14,7 @@
 # MAGIC      2-   dropduplicates
 # MAGIC      3-   subqueries - scalar
 # MAGIC      4-   GroupBy errors
+# MAGIC      5-   translate / replace / regexp_replace()
 # MAGIC
 # MAGIC Functions
 # MAGIC
@@ -194,6 +199,131 @@ cust_df = (  t1.withColumn('YoY_GROWTH', col('REVENUE') - lag('REVENUE').over(wi
           )
 
 cust_df.display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC --------------------------------------------------
+# MAGIC ####5- translate / replace / regexp_replace()
+# MAGIC
+# MAGIC ###### In PySpark, four are three primary ways to replace data depending on whether you want to swap exact values across a DataFrame, replace exact substrings, or apply pattern-matching replacements.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ---------------------------------------------------------------
+# MAGIC ##### 1.  pyspark.sql.functions.translate()
+# MAGIC Replaces individual characters based on position mapping. 
+# MAGIC It translates individual characters by matching their positions in the translation criteria.
+# MAGIC
+# MAGIC - It operates on a character-by-character mapping
+# MAGIC - Matches any single character found in the search string.
+# MAGIC - Drops characters if the replacement string is shorter than the match string.
+# MAGIC
+# MAGIC Syntax: translate(srcCol, matching, replace)Example:
+# MAGIC
+# MAGIC
+# MAGIC ###### Why: It maps individual letters: s->1, p->2, a->3, r->4, k->5. Every time it sees an "s", it turns into a "1", regardless of whether it forms the word "spark"
+# MAGIC
+# MAGIC
+
+# COMMAND ----------
+
+import pyspark.sql.functions as F
+
+df = spark.createDataFrame([("pyspark_spark",)], ["text"])
+df.select(F.translate("text", "spark", "12345")).show()
+# Output: "2451234k_1234k"
+
+
+# COMMAND ----------
+
+# 03-Manipulating Strings
+from pyspark.sql.functions import translate
+
+df = spark.createDataFrame([("Benga`li Market", "110001"),("Adu~godi", "560030")]) \
+          .toDF("address", "pin")
+
+df.withColumn("address", translate("address", "`~", "")).display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC -------------------------------------------------------------------
+# MAGIC ##### 2. pyspark.sql.functions.replace() 
+# MAGIC functions.replace():      Replaces all occurrences of a especified substring with a new substring.
+# MAGIC
+# MAGIC Acts as a column-level expression to substitute exact substrings within text fields.
+# MAGIC
+# MAGIC - Key Behavior: It modifies parts of a string without using complex regex
+# MAGIC - Syntax: replace(src, search, replace)
+# MAGIC
+# MAGIC
+# MAGIC
+# MAGIC functions.replace(src, search, replace=None)[source]
+# MAGIC
+# MAGIC     Parameters: 
+# MAGIC      
+# MAGIC     src:    Column or str
+# MAGIC            A column of string to be replaced.
+# MAGIC
+# MAGIC     search: Column or str
+# MAGIC            A column of string, If search is not found in str, str is returned unchanged.
+# MAGIC
+# MAGIC     replace: Column or str, optional
+# MAGIC            A column of string, If replace is not specified or is an empty string, nothing replaces the string that is removed from str.
+
+# COMMAND ----------
+
+from pyspark.sql.functions import replace
+
+# Replaces the substring "St." with "Street" inside the address column
+df_updated = df.withColumn("address", replace("address", "St.", "Street"))
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC -------------------------------------------------------------------
+# MAGIC ##### 3. pyspark.sql.functions.regexp_replace()
+# MAGIC Use regexp_replace when you need to replace text using Regular Expressions (regex) pattern matching.
+# MAGIC
+# MAGIC - Key Behavior: Essential for complex text cleaning, stripping punctuation, or formatting patterns.
+# MAGIC - Syntax: regexp_replace(str, pattern, replacement)
+# MAGIC
+
+# COMMAND ----------
+
+from pyspark.sql.functions import regexp_replace
+
+# Removes all numbers from the username column
+df_clean = df.withColumn("username", regexp_replace("username", r"\d+", ""))
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC -------------------------------------------------------------------
+# MAGIC ##### 4. DataFrame.replace()
+# MAGIC to swap exact matches of specific values (strings, numerics, or booleans) across one or multiple columns.
+# MAGIC
+# MAGIC - Key behavior: It targets the entire cell value, not substrings.
+# MAGIC - Syntax: df.replace(to_replace, value, subset=None)
+
+# COMMAND ----------
+
+# 1:1 Replacement across specific columns
+df_replaced = df.replace("Unknown", "N/A", subset=["city", "state"])
+
+# Dictionary mapping for multiple values
+mapping = {"m": "Male", "f": "Female", "unknown": None}
+df_replaced = df.replace(mapping, subset=["gender"])
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
 
 # COMMAND ----------
 
