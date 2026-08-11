@@ -10,15 +10,16 @@
 # MAGIC
 # MAGIC DataFrame
 # MAGIC
-# MAGIC      1-   collect
-# MAGIC      2-   dropduplicates
-# MAGIC      3-   subqueries - scalar
-# MAGIC      4-   GroupBy errors
-# MAGIC      5-   translate / replace / regexp_replace()
+# MAGIC      1- collect
+# MAGIC      2- dropduplicates
+# MAGIC      3- subqueries - scalar
+# MAGIC      4- GroupBy errors
+# MAGIC      5- translate / replace / regexp_replace()
 # MAGIC
 # MAGIC Functions
 # MAGIC
-# MAGIC      1-   split
+# MAGIC      1- split
+# MAGIC      2- CASE WHEN
 # MAGIC
 # MAGIC
 
@@ -335,6 +336,7 @@ df_replaced = df.replace(mapping, subset=["gender"])
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ---------------------------------------------------------------
 # MAGIC ###1 split
 # MAGIC
 # MAGIC ##### Divides a string column into an ArrayType column based on a specified delimiter or regular expression pattern
@@ -453,3 +455,112 @@ df_final.show(truncate=False)
 
 # COMMAND ----------
 
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC --------------------------------------------------------
+# MAGIC ####2) CASE WHEN STATEMENT
+# MAGIC
+# MAGIC - In PySpark, a SQL-style CASE WHEN statement is primarily implemented using the when() and otherwise() functions.
+# MAGIC - You can chain multiple .when() conditions together sequentially to mimic a standard CASE block.
+# MAGIC - You can also inject raw SQL string syntax directly via the expr() function.
+# MAGIC
+# MAGIC #####Key Behaviors to Note 
+# MAGIC
+# MAGIC ######Implicit Nulls: 
+# MAGIC If you omit the .otherwise() statement, any rows that do not match any .when() criteria will automatically return None (NULL).
+# MAGIC
+# MAGIC ######Order of Execution: 
+# MAGIC Like standard SQL, PySpark evaluates the conditions in sequence. The expression returns the value of the very first condition that evaluates to true.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 1. Native PySpark API (when().otherwise())
+# MAGIC This is the standard, most performant way to implement conditional logic natively inside a DataFrame.
+
+# COMMAND ----------
+
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+
+# Initialize Spark
+spark = SparkSession.builder.appName("CaseStatementExample").getOrCreate()
+
+# Sample Data
+data = [("Alice", 90), ("Bob", 75), ("Charlie", 50), ("David", 85)]
+df = spark.createDataFrame(data, ["name", "score"])
+
+# Applying Case Logic
+df_graded = df.withColumn("grade", F.when(F.col("score") >= 90, "A")
+                                    .when(F.col("score") >= 75, "B")
+                                    .when(F.col("score") >= 60, "C")
+                                    .otherwise("F") # Default case (ELSE)
+                         )
+
+df_graded.show()
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ###### THIS BELOW IS THE CODE TO ONE OF THE 300 INTERVIEW QUESTIONS
+
+# COMMAND ----------
+
+
+emp_df = ( raw_emp_df.withColumn('gender', when( col('employee_id') <20  , 'Female')
+                                          .when( col('employee_id') >= 20, 'Male'  )
+                                          .otherwise('No gender')
+                                )
+                     .groupBy('departmentid', 'employee_id', 'name')
+                     .agg(  count(when(col('gender') == 'Female', 1)).alias('WOMAN_CNT'),
+                            count(when(col('gender') == 'Male', 1)).alias('MAN_CNT')
+                          )
+                     .select('departmentid', 'employee_id', 'name','WOMAN_CNT', 'MAN_CNT')
+                     .orderBy('departmentid')
+        )
+
+emp_df.display()
+
+"""
+NOTE1: Needed to add 'gender' column to do the query
+
+NOTE2: A COUPLE OF employee IDs were changed in previous  steps this query works just remember to check on thoise
+2 --> 32 and 
+5 --> 34  changes!!!!!
+"""
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 2. Standard SQL Syntax via expr()
+# MAGIC If you prefer traditional SQL readability, you can write a raw SQL CASE WHEN string using the expr() function directly within DataFrame transformations.
+
+# COMMAND ----------
+
+from pyspark.sql.functions import expr
+
+df_graded_sql = df.withColumn("grade", expr(""" CASE WHEN score >= 90 THEN 'A'
+                                                     WHEN score >= 75 THEN 'B'
+                                                     WHEN score >= 60 THEN 'C'
+                                                     ELSE 'F'
+                                                 END
+                                            """)
+                              )
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### 3. Multiple Conditions (AND / OR)
+# MAGIC To combine multiple filters inside a single execution block, use bitwise logical operators: & for AND, and | for OR. 
+# MAGIC Every individual sub-condition must be wrapped in parentheses.
+
+# COMMAND ----------
+
+df_multi = df.withColumn("tier", F.when((F.col("score") >= 80) & (F.col("name").startswith("A")), "Top Tier")
+                                  .otherwise("Standard")
+)
