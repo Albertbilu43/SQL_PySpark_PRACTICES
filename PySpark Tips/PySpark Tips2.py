@@ -25,6 +25,11 @@
 
 # MAGIC %md
 # MAGIC
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
 # MAGIC ![image_1774985632190.png](./image_1774985632190.png "image_1774985632190.png")
 # MAGIC
 
@@ -711,8 +716,90 @@ result_df.display()
 
 # MAGIC %md
 # MAGIC -----------------------------------------------------------
-# MAGIC #### 18 
+# MAGIC #### 18 LAG and LEAD
 # MAGIC -----------------------------------------------------------
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### The lag() function in PySpark 
+# MAGIC Returns the value from a designated number of rows before the current row within a specific partition. 
+# MAGIC
+# MAGIC It is commonly used for time-series analyses, tracking sequential status transitions, or calculating period-over-period growth rates.
+# MAGIC
+# MAGIC ##### Syntax:
+
+# COMMAND ----------
+
+pyspark.sql.functions.lag(col, offset=1, default=None)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### Example:
+# MAGIC
+# MAGIC - col: The column name or Column object from which to fetch the historic value.
+# MAGIC - offset: The number of rows to look back (defaults to 1).
+# MAGIC - default: The value to return if the offset points outside the boundaries of the window partition (defaults to None/null)
+# MAGIC
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### Data to be used
+
+# COMMAND ----------
+
+from pyspark.sql import SparkSession
+from pyspark.sql.window import Window
+import pyspark.sql.functions as F
+
+spark = SparkSession.builder.appName("LagExample").getOrCreate()
+
+data = [
+    ("Dept-A", 1, 100),
+    ("Dept-A", 2, 150),
+    ("Dept-A", 3, 120),
+    ("Dept-B", 1, 300),
+    ("Dept-B", 2, 310)
+]
+columns = ["department", "month", "revenue"]
+df = spark.createDataFrame(data, columns)
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### LAG function
+# MAGIC
+# MAGIC ###### example1
+
+# COMMAND ----------
+
+# Define the window window: slice data by department, sequence by month
+windowSpec = Window.partitionBy("department").orderBy("month")
+
+# Add a column pulling the previous month's revenue
+df_lag = df.withColumn("prev_month_revenue", F.lag("revenue", offset=1, default=0).over(windowSpec))
+
+df_lag.show()
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ###### example2
+
+# COMMAND ----------
+
+# 1. Define window specification partitioned by store and ordered by date
+windowSpec = Window.partitionBy("store").orderBy("date")
+
+# 2. Apply lag function with default offset of 1
+df_basic_lag = df.withColumn("prev_day_sales", lag("sales", 1).over(windowSpec))
+
+df_basic_lag.show()
+
 
 # COMMAND ----------
 
