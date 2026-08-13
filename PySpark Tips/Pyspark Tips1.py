@@ -357,6 +357,10 @@ In expr(), parses a SQL expression string into a Column object, allowing you to 
 # MAGIC In PySpark, the sequence agg(...).first()[0] is a common pattern used to extract a single scalar value from an aggregated DataFrame.
 # MAGIC
 # MAGIC max_salary = raw_emp_df.agg(max("salary")).first()[0] # max_salary
+# MAGIC
+# MAGIC #### max_salary is a Python variable, not a column in the DataFrame. 
+# MAGIC #### It doesn't exist in the DataFrame schema so to be able to use it in a dataframe YOU MUST wrap it in a lit() function.
+# MAGIC #### The fix is to add max_salary as a literal column using lit():
 
 # COMMAND ----------
 
@@ -371,6 +375,27 @@ In expr(), parses a SQL expression string into a Column object, allowing you to 
         Esta es una "acción" de Spark que toma la primera fila del DataFrame resultante y la devuelve como un objeto tipo Row de Spark
         [0]: Accede al primer elemento de esa fila (el valor numérico del salario máximo). 
         Sin esto, tendrías un objeto Row(max(salary)=5000), pero con el [0] obtienes simplemente el 5000.
+"""
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### Avg salary example:
+
+# COMMAND ----------
+
+"""
+from pyspark.sql.functions import lit
+
+avg_sal= raw_emp_df.agg(avg('salary')).first()[0]   # Extraxt average salary as a scalar value
+                                                    #
+
+emp_df = ( raw_emp_df.filter(col('salary') > avg_sal)
+                     .select(col('name'), col('salary'), lit(avg_sal).alias('avg_sal') )
+          )
+
+emp_df.display()
+
 """
 
 # COMMAND ----------
