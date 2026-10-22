@@ -59,9 +59,12 @@
 # MAGIC
 # MAGIC
 # MAGIC -----------------------------------------------------------
-# MAGIC #### 2 select() vs selectExpr()
+# MAGIC #### 2 select() vs selectExpr() vs expr()
 # MAGIC
-# MAGIC ###### Both methods return a new DataFrame and are used for selecting and transforming columns
+# MAGIC ######  Summary Comparison
+# MAGIC
+# MAGIC ![image_1792614283675.png](./image_1792614283675.png "image_1792614283675.png")
+# MAGIC
 # MAGIC -----------------------------------------------------------
 # MAGIC
 # MAGIC
@@ -74,11 +77,45 @@
 # MAGIC              column names (string) or expressions (Column). 
 # MAGIC              If one of the column names is ‘ * ’, that column is expanded to include all columns in the current DataFrame.
 # MAGIC
+# MAGIC
+# MAGIC       from pyspark.sql.functions import col
+# MAGIC     # Simple column selection Names (strings)
+# MAGIC       df.select("name", "age")
+# MAGIC
+# MAGIC     # Column transformation using Column objects
+# MAGIC       df.select(col("name"), (col("age") * 2).alias("double_age"))
+# MAGIC
+# MAGIC
 # MAGIC        
 # MAGIC #### selectExpr() 
 # MAGIC * Accepts standard SQL expressions as strings. 
 # MAGIC          but CAREFUL you CANNOT include 'where' statement inside it or do any groupings for a particular dimension
 # MAGIC          UNLESS you create a TemporaryView first to execute a whole SQL expresion
+# MAGIC
+# MAGIC
+# MAGIC ###### Multiple transformations and renaming using pure SQL strings
+# MAGIC        df.selectExpr(
+# MAGIC                      "name", 
+# MAGIC                      "age * 2 as double_age", 
+# MAGIC                      "CASE WHEN age >= 18 THEN 'Adult' ELSE 'Minor' END as status"
+# MAGIC                      )
+# MAGIC
+# MAGIC
+# MAGIC #### expr()
+# MAGIC  * Unlike the previous two, expr() is a utility function that you import from pyspark.sql.functions. 
+# MAGIC    It takes a single SQL expression string and converts it into a PySpark Column object.
+# MAGIC ###### When to use: 
+# MAGIC        Use this when you are working inside native DataFrame transformations like select(), withColumn(), or filter() 
+# MAGIC        and want to inject a single block of SQL logic.
+# MAGIC       • Limitation: It does not modify a DataFrame on its own; it must be wrapped inside a DataFrame method.
+# MAGIC
+# MAGIC       from pyspark.sql.functions import expr
+# MAGIC     # Using expr() inside select()
+# MAGIC       df.select("name", expr("age * 2 as double_age"))
+# MAGIC
+# MAGIC     # Using expr() inside withColumn()
+# MAGIC       df.withColumn("status", expr("CASE WHEN age >= 18 THEN 'Adult' ELSE 'Minor' END"))
+# MAGIC       
 # MAGIC
 # MAGIC -----------------------------------------------------------------------------------------
 # MAGIC
@@ -111,64 +148,18 @@
 # MAGIC ##### <When to Use Which?>
 # MAGIC
 # MAGIC ######   Use select() 
-# MAGIC     when you are building transformations programmatically (e.g., looping through a list of Column objects) or when you prefer a strictly Pythonic API style.
+# MAGIC     when you are building transformations programmatically (e.g., looping through a list of Column objects) or 
+# MAGIC     when you prefer a strictly Pythonic API style.
 # MAGIC -------------------------------------------------------------    
 # MAGIC ######  Use selectExpr() 
-# MAGIC     when you want to write concise, SQL-like transformations without importing the functions module for every simple operation. 
+# MAGIC     when you want to write concise, SQL-like transformations without importing the functions module for 
+# MAGIC     every simple operation. 
 # MAGIC     It is also excellent for users already comfortable with SQL syntax
 # MAGIC """
-# MAGIC #####   <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<expr() vs. selectExpr()>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# MAGIC
+# MAGIC ---------------------------------------------------------------------------------------------------------------------
 # MAGIC
 # MAGIC
-# MAGIC ##### expr()             
-# MAGIC                       operates on a single SQL expression and returns a Column object for use within other DataFrame methods, 
-# MAGIC ##### selectExpr()        
-# MAGIC                       Accepts one or more SQL expressions as strings and applies them across the entire DataFrame in a single call,
-# MAGIC                       returning a new DataFrame. 
-# MAGIC
-# MAGIC                       <<python>>
-# MAGIC                       # Using selectExpr to perform multiple operations at once
-# MAGIC                       
-# MAGIC                       -  df_transformed = df.selectExpr( "name", "Balance * 1.02 AS Adjusted_Balance",
-# MAGIC                                                         "CASE WHEN Balance > 100000 THEN 'High' ELSE 'Low' END AS Balance_Level"
-# MAGIC                                                       )
-# MAGIC
-# MAGIC
-# MAGIC #### Key differences
-# MAGIC expr() is a standalone function that evaluates a single SQL expression into a column, whereas 
-# MAGIC
-# MAGIC selectExpr() is a DataFrame method that lets you run multiple SQL expressions to select and transform columns simultaneously
-# MAGIC
-# MAGIC Feature---------expr()---------------------------------------------------selectExpr()-------------
-# MAGIC
-# MAGIC Type------------Function (imported from pyspark.sql.functions) -----Method (called directly on a DataFrame)
-# MAGIC
-# MAGIC Arguments-----Takes exactly one string expression.------------------Takes one or more comma-separated string expressions.
-# MAGIC
-# MAGIC Usage----------Must be nested inside methods like select(), --------Acts as a standalone drop-in replacement for select().
-# MAGIC                 withColumn(), or filter().
-# MAGIC
-# MAGIC Output---------Returns a Column object.-----------------------------Returns a new DataFrame.
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC #####  col(col)           
-# MAGIC                     - Se utiliza para hacer referencia a una columna de un DataFrame por su nombre, devolviendo un objeto de tipo Column. 
-# MAGIC                     Es fundamental para:
-# MAGIC                     -  transformaciones
-# MAGIC                     -  filtros 
-# MAGIC                     -  ordenaciones al convertir cadenas de texto en expresiones de columna. 
-# MAGIC                        col("nombre_columna").
-# MAGIC
-# MAGIC #####  column(col)        
-# MAGIC                     - Does the sam e as 'col(col)' but 'col(col)' is more preferred. 
-# MAGIC #####  lit(col)           
-# MAGIC                     - Creates a Column of literal value.
-# MAGIC #####  try_cast(dataType) 
-# MAGIC                     - A special version of cast that performs the same operation, but returns a NULL value instead of raising 
-# MAGIC                       an error if the invoke method throws exception.
-# MAGIC """
 
 # COMMAND ----------
 
@@ -244,11 +235,13 @@ try_cast(dataType) - A special version of cast that performs the same operation,
 # MAGIC -------------------------------------------------------------
 # MAGIC #### selectExpr() WARNINGS
 # MAGIC                     YOU CANNOT put groupby inside selectExpr() 
+# MAGIC
 # MAGIC                     ❌ THIS WILL FAIL: raw_emp_df.selectExpr(" name, count(*) groupby(name)"))
 # MAGIC                     ✅ THIS WILL WORK: raw_emp_df.selectExpr("name").groupBy("name").count()
 # MAGIC
 # MAGIC ----------------------------------------------------------------------------
-# MAGIC                    YOU CANNOT put 'where' SQL keyword inside selectExpr()
+# MAGIC                     YOU CANNOT put 'where' SQL keyword inside selectExpr()
+# MAGIC                     
 # MAGIC                      The selectExpr() method is designed for selecting columns and applying SQL expressions to those 
 # MAGIC                      columns(e.g., transformations, aggregations, or conditional logic with CASE WHEN), not to filter the dataset  
 # MAGIC
@@ -263,7 +256,17 @@ try_cast(dataType) - A special version of cast that performs the same operation,
 # MAGIC #### expr() WARNINGS 
 # MAGIC
 # MAGIC ###### WARNING: col() cannot be nested inside expr()
-# MAGIC                     You can HAVE col() and expr() INSIDE  A select() because both return a col object:   df.select(col("name"), expr("age + 1 as next_year_age")) 
+# MAGIC                     You cannot use col() inside expr() because:
+# MAGIC                     -expr() expects a string containing a SQL expression, whereas 
+# MAGIC                     -col() returns a PySpark Column object.
+# MAGIC
+# MAGIC                     Since col() returns a column object INSIDE an expr() function,  
+# MAGIC                     expr() does not recognize the col() object and this  causes a type mismatch or syntax error.
+# MAGIC
+# MAGIC How they work differently
+# MAGIC
+# MAGIC • expr(str): Takes a string literal (e.g., expr("price * 0.9")), sends it to Spark's Catalyst optimizer, and parses it as a SQL expression.
+# MAGIC • col(str): Returns a native PySpark Column programmatically so you can build expressions using Python operators (e.g., col("price") * 0.9)
 # MAGIC                     
 # MAGIC                     BUT CANNO PUT col() INSIDE A expr() !!!!!!!!!!!!!!!!!
 # MAGIC                     expr() expects a raw SQL STRING but returns a Column object, you can use it interchangeably with col() 
@@ -275,44 +278,57 @@ try_cast(dataType) - A special version of cast that performs the same operation,
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ----------------------------------------------------------------------
+# MAGIC ----------------------------------------------------------------------
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC --------------------------------------------------------------------
 # MAGIC ##### Examples Renaming a Column (Alias) vs AS
 
 # COMMAND ----------
 
+
+# ---------------------------------------- .alias() --------------------------------------------------
 In select(), you must use a Column object to call .alias(). 
-# select()
-#from pyspark.sql import functions as F
-#df.select(F.col("age").alias("current_age"))
+#df.select(col("age").alias("current_age"))
+
+# ----------------------------------------      AS --------------------------------------------------
+Inside .select() you can use expr() with AS:
+    to perform math, string manipulation, or transformations while assigning a clean column name:
+#df.select(expr("price * quantity AS total_cost")).show()
+
 
 In selectExpr(), you use the SQL 'AS' keyword.
-# selectExpr()
 #df.selectExpr("age AS current_age")
-
-In expr(), parses a SQL expression string into a Column object, allowing you to write raw SQL logic directly inside DataFrame transformations. 
-
-
 
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ###### Examples Mathematical Operations & SQL Functions 
-# MAGIC
-# MAGIC selectExpr() Is not designed to filter the dataset 
-# MAGIC
-# MAGIC is often more concise for simple calculations or applying built-in SQL functions like abs(), upper(), or cast().
-# MAGIC
-# MAGIC
+# MAGIC --------------------------------------------------------------------
+# MAGIC --------------------------------------------------------------------
 
 # COMMAND ----------
 
-# select()
-#df.select((F.col("age") + 10).alias("age_plus_ten"))
-
-# selectExpr()
-#df.selectExpr("age + 10 AS age_plus_ten", "CAST(id AS STRING)")
-
+# MAGIC %md
+# MAGIC #####  col(col)           
+# MAGIC                     - Se utiliza para hacer referencia a una columna de un DataFrame por su nombre, devolviendo un objeto de tipo Column. 
+# MAGIC                     Es fundamental para:
+# MAGIC                     -  transformaciones
+# MAGIC                     -  filtros 
+# MAGIC                     -  ordenaciones al convertir cadenas de texto en expresiones de columna. 
+# MAGIC                        col("nombre_columna").
+# MAGIC
+# MAGIC #####  column(col)        
+# MAGIC                     - Does the sam e as 'col(col)' but 'col(col)' is more preferred. 
+# MAGIC #####  lit(col)           
+# MAGIC                     - Creates a Column of literal value.
+# MAGIC #####  try_cast(dataType) 
+# MAGIC                     - A special version of cast that performs the same operation, but returns a NULL value instead of raising 
+# MAGIC                       an error if the invoke method throws exception.
+# MAGIC """
 
 # COMMAND ----------
 
